@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Emerge Career · Sign-up prototype</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ECEAE8; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; color: #110A09; }
+  .phone { position: relative; width: 100%; max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
+  .screen { position: relative; width: 100%; }
+  .screen img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+  .hot { position: absolute; cursor: pointer; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+  .hot:active { background: rgba(255,255,255,0.15); }
+  .hint .hot.cta { outline: 3px solid rgba(208,58,20,0.9); outline-offset: 2px; animation: pulse 1s ease-in-out 2; }
+  @keyframes pulse { 50% { outline-color: rgba(208,58,20,0.2); } }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #110A09; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 15px; line-height: 20px; max-width: 360px; width: calc(100% - 32px); text-align: center; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 10; }
+  .toast.show { opacity: 1; }
+  .card { padding: 40px 28px; }
+  .card h1 { font-size: 28px; line-height: 34px; font-weight: 600; margin: 0 0 16px; }
+  .card p { font-size: 17px; line-height: 25px; margin: 0 0 14px; color: #333; }
+  .card ul { padding-left: 20px; margin: 0 0 24px; font-size: 17px; line-height: 25px; color: #333; }
+  .card button { width: 100%; height: 54px; border: 0; border-radius: 4px; background: #D03A14; color: #fff; font-size: 17px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="phone" id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const SCREENS = [{"img": "img/01.png", "w": 390, "h": 958, "back": false, "cta": [24, 876, 342, 54]}, {"img": "img/02.png", "w": 390, "h": 949, "back": false, "cta": [24, 867, 342, 54]}, {"img": "img/03.png", "w": 390, "h": 844, "back": false, "cta": [24, 726, 342, 54]}, {"img": "img/04.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/05.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/06.png", "w": 390, "h": 844, "back": false, "story": true, "cta": [290, 770, 100, 48]}, {"img": "img/07.png", "w": 390, "h": 935, "back": true, "cta": [24, 853, 342, 54]}, {"img": "img/08.png", "w": 390, "h": 844, "back": true, "cta": [24.0, 762, 342, 54]}, {"img": "img/09.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/10.png", "w": 390, "h": 844, "back": true, "cta": [28.0, 750, 334, 54]}, {"img": "img/11.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/12.png", "w": 390, "h": 1049, "back": true, "cta": [24.0, 967, 342, 54]}, {"img": "img/13.png", "w": 390, "h": 972, "back": true, "cta": [24, 890, 342, 54]}, {"img": "img/14.png", "w": 390, "h": 844, "back": true, "cta": [28.0, 750, 334, 54]}, {"img": "img/15.png", "w": 390, "h": 1836, "back": true, "cta": [24.0, 1754, 342, 54]}, {"img": "img/16.png", "w": 390, "h": 844, "back": false, "cta": [28.0, 750, 334, 54]}, {"img": "img/17.png", "w": 390, "h": 844, "back": false, "auto": 3500}, {"img": "img/18.png", "w": 390, "h": 844, "back": false, "cta": [28.0, 716, 334, 54]}, {"img": "img/19.png", "w": 390, "h": 844, "back": false, "cta": [24, 720, 342, 56]}, {"img": "img/20.png", "w": 390, "h": 940, "back": false, "cta": [24.0, 856, 342, 56]}];
+const app = document.getElementById('app');
+const toast = document.getElementById('toast');
+let timer = null, toastTimer = null;
+
+SCREENS.forEach(s => { const i = new Image(); i.src = s.img; });
+
+function showToast(msg, ms = 2600) {
+  toast.textContent = msg; toast.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+}
+function go(n) { location.hash = '#' + n; }
+function pct(v, total) { return (v / total * 100) + '%'; }
+
+function intro() {
+  app.innerHTML = `<div class="card">
+    <h1>Before you start</h1>
+    <p>This is a clickable picture of a new sign-up flow for a free truck-driving (CDL) training program. It is not a real app.</p>
+    <ul>
+      <li>Only the main button at the bottom of each screen works. Tap it to move on.</li>
+      <li>Answers are already filled in for you. You don't need to type anything.</li>
+      <li>The arrow at the top left goes back.</li>
+    </ul>
+    <p>Please think out loud the whole time.</p>
+    <button onclick="go(1)">Start</button></div>`;
+}
+function end() {
+  app.innerHTML = `<div class="card">
+    <h1>That's the end</h1>
+    <p>You reached the last screen of the prototype. Thank you!</p>
+    <p>Please go back to the test instructions to answer the final questions.</p>
+    <button onclick="go(1)">Start over</button></div>`;
+}
+
+function render() {
+  clearTimeout(timer);
+  const raw = location.hash.replace('#', '');
+  if (!raw) return intro();
+  if (raw === 'end') return end();
+  const n = Math.max(1, Math.min(SCREENS.length, parseInt(raw, 10) || 1));
+  const s = SCREENS[n - 1];
+  const next = n === SCREENS.length ? 'end' : n + 1;
+  let hots = '';
+  if (s.cta) {
+    const [x, y, w, h] = s.cta;
+    hots += `<div class="hot cta" data-go="${next}" style="left:${pct(x, s.w)};top:${pct(y, s.h)};width:${pct(w, s.w)};height:${pct(h, s.h)}"></div>`;
+  }
+  if (s.back) hots += `<div class="hot" data-go="${n - 1}" style="left:0;top:${pct(30, s.h)};width:${pct(70, s.w)};height:${pct(64, s.h)}"></div>`;
+  if (s.story) hots += `<div class="hot" data-video="1" style="left:0;top:${pct(130, s.h)};width:100%;height:${pct(420, s.h)}"></div>`;
+  app.innerHTML = `<div class="screen"><img src="${s.img}" alt="Screen ${n}">${hots}</div>`;
+  window.scrollTo(0, 0);
+
+  app.querySelectorAll('.hot[data-go]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); go(el.dataset.go); }));
+  const v = app.querySelector('[data-video]');
+  if (v) v.addEventListener('click', e => {
+    e.stopPropagation(); clearTimeout(timer);
+    showToast("In the real app, Tyler's 30-second video plays here. It moves on when the video ends.", 3600);
+    timer = setTimeout(() => go(next), 4200);
+  });
+  app.querySelector('.screen').addEventListener('click', () => {
+    if (!s.cta) return;
+    app.classList.add('hint'); setTimeout(() => app.classList.remove('hint'), 2100);
+    showToast('In this prototype, only the main button works.');
+  });
+  if (s.story) timer = setTimeout(() => go(next), 7000);
+  if (s.auto) timer = setTimeout(() => go(next), s.auto);
+}
+if (location.search.includes('debug')) document.head.insertAdjacentHTML('beforeend','<style>.hot{outline:2px dashed #00f!important;background:rgba(0,0,255,.12)}</style>');
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>
