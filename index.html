@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Emerge Career · Sign-up prototype</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300&display=swap" rel="stylesheet" />
+<link rel="preload" href="fonts/PPFragment-GlareLight.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+  @font-face { font-family: "PP Fragment"; src: url("fonts/PPFragment-GlareLight.woff2") format("woff2"); font-weight: 300; font-style: normal; font-display: block; }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: #ECEAE8; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; color: #110A09; }
   .phone { position: relative; width: 100%; max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
@@ -21,7 +20,7 @@
   .radio { position: absolute; pointer-events: none; z-index: 2; border: 1.5px solid #D03A14; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
   .radio::after { content: ""; width: 48%; height: 48%; border-radius: 50%; background: #D03A14; }
   .txt { position: absolute; pointer-events: none; z-index: 2; }
-  .headline { font-family: "Newsreader", "Times New Roman", serif; font-weight: 300; font-size: calc(34px * var(--s)); line-height: calc(40px * var(--s)); letter-spacing: -0.01em; }
+  .headline { font-family: "PP Fragment", "Times New Roman", serif; font-weight: 300; font-size: calc(34px * var(--s)); line-height: calc(40px * var(--s)); letter-spacing: -0.01em; }
   .eyebrow { font-weight: 500; font-size: calc(12px * var(--s)); line-height: calc(16px * var(--s)); letter-spacing: 0.06em; text-transform: uppercase; color: #D6D6D6; }
   .hint .hot.cta { outline: 3px solid rgba(208,58,20,0.9); outline-offset: 2px; animation: pulse 1s ease-in-out 2; }
   .hint .hot.opt { outline: 2px dashed rgba(208,58,20,0.8); outline-offset: 1px; }
