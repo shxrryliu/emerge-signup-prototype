@@ -5,61 +5,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Emerge Career · Sign-up prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; background: #ECEAE8; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; color: #110A09; }
   .phone { position: relative; width: 100%; max-width: 430px; margin: 0 auto; background: #fff; min-height: 100vh; }
-  .screen { position: relative; width: 100%; }
+  .screen { position: relative; width: 100%; --s: 1; }
   .screen img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
-  .hot { position: absolute; cursor: pointer; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
-  .hot:active { background: rgba(255,255,255,0.15); }
+  .hot { position: absolute; cursor: pointer; -webkit-tap-highlight-color: transparent; z-index: 3; }
+  .sel { position: absolute; pointer-events: none; z-index: 2; border: 1.5px solid #D03A14; background: rgba(208,58,20,0.08); }
+  .box { position: absolute; pointer-events: none; z-index: 2; background: #D03A14; border-radius: calc(6px * var(--s)); display: flex; align-items: center; justify-content: center; }
+  .box svg { width: 62%; height: 62%; }
+  .radio { position: absolute; pointer-events: none; z-index: 2; border: 1.5px solid #D03A14; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+  .radio::after { content: ""; width: 48%; height: 48%; border-radius: 50%; background: #D03A14; }
+  .txt { position: absolute; pointer-events: none; z-index: 2; }
+  .headline { font-family: "Newsreader", "Times New Roman", serif; font-weight: 300; font-size: calc(34px * var(--s)); line-height: calc(40px * var(--s)); letter-spacing: -0.01em; }
+  .eyebrow { font-weight: 500; font-size: calc(12px * var(--s)); line-height: calc(16px * var(--s)); letter-spacing: 0.06em; text-transform: uppercase; color: #D6D6D6; }
   .hint .hot.cta { outline: 3px solid rgba(208,58,20,0.9); outline-offset: 2px; animation: pulse 1s ease-in-out 2; }
+  .hint .hot.opt { outline: 2px dashed rgba(208,58,20,0.8); outline-offset: 1px; }
   @keyframes pulse { 50% { outline-color: rgba(208,58,20,0.2); } }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #110A09; color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 15px; line-height: 20px; max-width: 360px; width: calc(100% - 32px); text-align: center; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 10; }
   .toast.show { opacity: 1; }
   .card { padding: 40px 28px; }
   .card h1 { font-size: 28px; line-height: 34px; font-weight: 600; margin: 0 0 16px; }
-  .card p { font-size: 17px; line-height: 25px; margin: 0 0 14px; color: #333; }
-  .card ul { padding-left: 20px; margin: 0 0 24px; font-size: 17px; line-height: 25px; color: #333; }
+  .card p, .card li { font-size: 17px; line-height: 25px; color: #333; }
+  .card p { margin: 0 0 14px; }
+  .card ul { padding-left: 20px; margin: 0 0 20px; }
+  .card label { display: block; font-size: 15px; font-weight: 600; margin: 8px 0 6px; color: #5C5450; }
+  .card input { width: 100%; height: 50px; border: 1.5px solid #E5E7EB; border-radius: 4px; padding: 0 14px; font-size: 17px; margin-bottom: 6px; }
+  .card input:focus { outline: none; border-color: #5C5450; }
+  .card small { display: block; color: #6B7280; font-size: 14px; margin-bottom: 22px; }
   .card button { width: 100%; height: 54px; border: 0; border-radius: 4px; background: #D03A14; color: #fff; font-size: 17px; font-weight: 600; cursor: pointer; }
+  .card dl { margin: 0 0 22px; font-size: 16px; line-height: 22px; }
+  .card dt { color: #6B7280; font-size: 14px; margin-top: 10px; }
+  .card dd { margin: 0; }
 </style>
 </head>
 <body>
 <div class="phone" id="app"></div>
 <div class="toast" id="toast"></div>
 <script>
-const SCREENS = [{"img": "img/01.png", "w": 390, "h": 958, "back": false, "cta": [24, 876, 342, 54]}, {"img": "img/02.png", "w": 390, "h": 949, "back": false, "cta": [24, 867, 342, 54]}, {"img": "img/03.png", "w": 390, "h": 844, "back": false, "cta": [24, 726, 342, 54]}, {"img": "img/04.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/05.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/06.png", "w": 390, "h": 844, "back": false, "story": true, "cta": [290, 770, 100, 48]}, {"img": "img/07.png", "w": 390, "h": 935, "back": true, "cta": [24, 853, 342, 54]}, {"img": "img/08.png", "w": 390, "h": 844, "back": true, "cta": [24.0, 762, 342, 54]}, {"img": "img/09.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/10.png", "w": 390, "h": 844, "back": true, "cta": [28.0, 750, 334, 54]}, {"img": "img/11.png", "w": 390, "h": 844, "back": true, "cta": [24, 762, 342, 54]}, {"img": "img/12.png", "w": 390, "h": 1049, "back": true, "cta": [24.0, 967, 342, 54]}, {"img": "img/13.png", "w": 390, "h": 972, "back": true, "cta": [24, 890, 342, 54]}, {"img": "img/14.png", "w": 390, "h": 844, "back": true, "cta": [28.0, 750, 334, 54]}, {"img": "img/15.png", "w": 390, "h": 1836, "back": true, "cta": [24.0, 1754, 342, 54]}, {"img": "img/16.png", "w": 390, "h": 844, "back": false, "cta": [28.0, 750, 334, 54]}, {"img": "img/17.png", "w": 390, "h": 844, "back": false, "auto": 3500}, {"img": "img/18.png", "w": 390, "h": 844, "back": false, "cta": [28.0, 716, 334, 54]}, {"img": "img/19.png", "w": 390, "h": 844, "back": false, "cta": [24, 720, 342, 56]}, {"img": "img/20.png", "w": 390, "h": 940, "back": false, "cta": [24.0, 856, 342, 56]}];
+// Geometry is in design pixels (390-wide artboards). Rects are [x, y, w, h].
+const BTN = (y) => [24, y, 342, 54];
+const MOTIVES = ["A new high-paying career", "Provide for my family", "A fresh start", "Freedom of the open road", "Something else"];
+const MOTIVE_EYEBROW = ["You want a high-paying career", "You want to provide for your family", "You want a fresh start", "You want the open road", "You're not the first"];
+const STARTS = ["Brand new to trucking", "Driven for work before", "Already have a permit (CLP)", "Already have a CDL"];
+const params = new URLSearchParams(location.search);
+const FORCE = params.get('ending'); // "hold" or "qualify" pins the ending for a test variant
+
 const app = document.getElementById('app');
 const toast = document.getElementById('toast');
 let timer = null, toastTimer = null;
 
-SCREENS.forEach(s => { const i = new Image(); i.src = s.img; });
+let S = JSON.parse(sessionStorage.getItem('proto') || '{}');
+S = Object.assign({ name: '', motives: [], start: null, license: null, arrested: null }, S);
+if (params.has('debug') && params.get('state')) S = Object.assign(S, JSON.parse(params.get('state')));
+const save = () => sessionStorage.setItem('proto', JSON.stringify(S));
+const onHold = () => FORCE === 'hold' || (FORCE !== 'qualify' && S.license === 'no');
+
+const SCREENS = {
+  1: () => ({ img: '01', size: [390, 958], cta: BTN(876) }),
+  2: () => ({ img: '02', size: [390, 949], cta: BTN(867) }),
+  3: () => ({ img: '03', size: [390, 844], cta: BTN(726) }),
+  4: () => ({ img: '04', size: [390, 844], cta: BTN(762), back: true }),
+  5: () => ({
+    img: '05', size: [390, 844], cta: BTN(762), back: true,
+    need: () => S.motives.length > 0, needMsg: 'Pick at least one answer first.',
+    multi: {
+      cards: [[24,250,342,56],[24,318,342,56],[24,386,342,56],[24,454,342,56],[24,522,342,56]],
+      boxes: [[327,267,22,22],[327,335,22,22],[327,403,22,22],[327,471,22,22],[327,539,22,22]] },
+  }),
+  6: () => ({ img: '06', size: [390, 844], story: true, cta: [290, 770, 100, 48],
+    texts: [{ cls: 'eyebrow', rect: [20, 563, 350, 16], text: MOTIVE_EYEBROW[S.motives.length ? Math.min(...S.motives) : 4] }] }),
+  7: () => ({ img: '07', size: [390, 935], cta: BTN(853), back: true }),
+  8: () => ({ img: '08', size: [390, 844], cta: BTN(762), back: true }),
+  9: () => ({ img: '09', size: [390, 844], cta: BTN(762), back: true }),
+  10: () => ({ img: '10', size: [390, 844], cta: [28, 750, 334, 54], back: true,
+    texts: [{ cls: 'headline', rect: [28, 156, 334, 80], color: '#FFFFFF', text: `Nice to meet you, ${S.name || 'friend'}.` }] }),
+  11: () => ({
+    img: '11', size: [390, 844], cta: BTN(762), back: true,
+    need: () => S.start !== null, needMsg: 'Pick where you are starting from first.',
+    single: {
+      cards: [[24,346,342,76],[24,434,342,76],[24,522,342,76],[24,610,342,56]],
+      radios: [[325,373,22,22],[325,461,22,22],[325,549,22,22],[325,627,22,22]] },
+  }),
+  12: () => (S.license === 'no'
+    ? { img: '12no', size: [390, 1256], cta: BTN(1174), back: true, yesno: { key: 'license', yes: [24,330,166,46], no: [200,330,166,46], baked: 'no' } }
+    : { img: '12', size: [390, 1049], cta: BTN(967), back: true, yesno: { key: 'license', yes: [24,330,166,46], no: [200,330,166,46] },
+        need: () => S.license !== null, needMsg: 'Answer the driver’s license question first.' }),
+  13: () => ({ img: '13', size: [390, 972], cta: BTN(890), back: true }),
+  14: () => ({ img: '14', size: [390, 844], cta: [28, 750, 334, 54], back: true }),
+  15: () => {
+    const yn = { key: 'arrested', yes: [24,438,166,46], no: [200,438,166,46] };
+    if (S.arrested === 'yes') return { img: '15b', size: [390, 1836], cta: BTN(1754), back: true, yesno: { ...yn, baked: 'yes' } };
+    if (S.arrested === 'no') return { img: '15a', size: [390, 844], cta: BTN(762), back: true, yesno: { ...yn, baked: 'no' } };
+    return { img: '15', size: [390, 844], cta: BTN(762), back: true, yesno: yn, need: () => false, needMsg: 'Answer the question first.' };
+  },
+  16: () => ({ img: '16', size: [390, 844], cta: [28, 750, 334, 54] }),
+  17: () => ({ img: '17', size: [390, 844], auto: 3500 }),
+  18: () => ({ img: '18', size: [390, 844], cta: [28, 716, 334, 54] }),
+  19: () => (onHold()
+    ? { img: '19b', size: [390, 844], cta: BTN(762) }
+    : { img: '19', size: [390, 844], cta: [24, 720, 342, 56],
+        texts: [{ cls: 'headline', rect: [24, 90, 342, 40], color: '#110A09', text: `You qualify, ${S.name || 'friend'}.` }] }),
+  20: () => ({ img: '20', size: [390, 940], cta: [24, 856, 342, 56] }),
+};
+const LAST = 20;
+const nextOf = (n) => {
+  if (n === LAST) return 'end';
+  if (n === 17 && onHold()) return 19; // "Your road ahead" shows a timeline, which doesn't apply on hold
+  return n + 1;
+};
+const prevOf = (n) => (n === 19 && onHold() ? 17 : n - 1);
+
+['01','02','03','04','05','06','07','08','09','10','11','12','12no','13','14','15','15a','15b','16','17','18','19','19b','20']
+  .forEach(k => { const i = new Image(); i.src = `img/${k}.png`; });
 
 function showToast(msg, ms = 2600) {
   toast.textContent = msg; toast.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
 }
 function go(n) { location.hash = '#' + n; }
-function pct(v, total) { return (v / total * 100) + '%'; }
+const pctBox = ([x, y, w, h], [W, H]) => `left:${x / W * 100}%;top:${y / H * 100}%;width:${w / W * 100}%;height:${h / H * 100}%`;
+const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function intro() {
   app.innerHTML = `<div class="card">
     <h1>Before you start</h1>
     <p>This is a clickable picture of a new sign-up flow for a free truck-driving (CDL) training program. It is not a real app.</p>
     <ul>
-      <li>Only the main button at the bottom of each screen works. Tap it to move on.</li>
-      <li>Answers are already filled in for you. You don't need to type anything.</li>
+      <li>Tap answers where you can, then the main button at the bottom to move on.</li>
+      <li>Text fields are already filled in. You don't need to type anything after this.</li>
       <li>The arrow at the top left goes back.</li>
     </ul>
     <p>Please think out loud the whole time.</p>
-    <button onclick="go(1)">Start</button></div>`;
+    <label for="nm">What should we call you?</label>
+    <input id="nm" autocomplete="given-name" placeholder="First name" value="${esc(S.name)}" />
+    <small>Only used inside this prototype. Nothing is saved or sent anywhere.</small>
+    <button id="start">Start</button></div>`;
+  const nm = document.getElementById('nm');
+  document.getElementById('start').onclick = () => {
+    S = { name: nm.value.trim().slice(0, 24), motives: [], start: null, license: null, arrested: null }; save(); go(1);
+  };
 }
 function end() {
+  const yn = (v) => v === 'yes' ? 'Yes' : v === 'no' ? 'No' : 'Not answered';
   app.innerHTML = `<div class="card">
     <h1>That's the end</h1>
     <p>You reached the last screen of the prototype. Thank you!</p>
     <p>Please go back to the test instructions to answer the final questions.</p>
-    <button onclick="go(1)">Start over</button></div>`;
+    <dl>
+      <dt>What brings you here</dt><dd>${S.motives.length ? S.motives.map(i => MOTIVES[i]).join(', ') : 'Not answered'}</dd>
+      <dt>Starting point</dt><dd>${S.start !== null ? STARTS[S.start] : 'Not answered'}</dd>
+      <dt>Active driver's license</dt><dd>${yn(S.license)}</dd>
+      <dt>Ever arrested or charged</dt><dd>${yn(S.arrested)}</dd>
+      <dt>Ending shown</dt><dd>${onHold() ? 'On hold (license needed)' : 'You qualify'}</dd>
+    </dl>
+    <button onclick="sessionStorage.removeItem('proto'); location.hash=''">Start over</button></div>`;
 }
 
 function render() {
@@ -67,35 +172,67 @@ function render() {
   const raw = location.hash.replace('#', '');
   if (!raw) return intro();
   if (raw === 'end') return end();
-  const n = Math.max(1, Math.min(SCREENS.length, parseInt(raw, 10) || 1));
-  const s = SCREENS[n - 1];
-  const next = n === SCREENS.length ? 'end' : n + 1;
-  let hots = '';
-  if (s.cta) {
-    const [x, y, w, h] = s.cta;
-    hots += `<div class="hot cta" data-go="${next}" style="left:${pct(x, s.w)};top:${pct(y, s.h)};width:${pct(w, s.w)};height:${pct(h, s.h)}"></div>`;
-  }
-  if (s.back) hots += `<div class="hot" data-go="${n - 1}" style="left:0;top:${pct(30, s.h)};width:${pct(70, s.w)};height:${pct(64, s.h)}"></div>`;
-  if (s.story) hots += `<div class="hot" data-video="1" style="left:0;top:${pct(130, s.h)};width:100%;height:${pct(420, s.h)}"></div>`;
-  app.innerHTML = `<div class="screen"><img src="${s.img}" alt="Screen ${n}">${hots}</div>`;
-  window.scrollTo(0, 0);
+  const n = Math.max(1, Math.min(LAST, parseInt(raw, 10) || 1));
+  const s = SCREENS[n]();
+  const sz = s.size;
+  let html = `<img src="img/${s.img}.png" alt="Screen ${n}">`;
 
-  app.querySelectorAll('.hot[data-go]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); go(el.dataset.go); }));
-  const v = app.querySelector('[data-video]');
-  if (v) v.addEventListener('click', e => {
+  if (s.multi) s.multi.cards.forEach((r, i) => {
+    if (S.motives.includes(i)) html += `<div class="sel" style="${pctBox(r, sz)};border-radius:calc(8px * var(--s))"></div><div class="box" style="${pctBox(s.multi.boxes[i], sz)}">${CHECK}</div>`;
+    html += `<div class="hot opt" data-multi="${i}" style="${pctBox(r, sz)}"></div>`;
+  });
+  if (s.single) s.single.cards.forEach((r, i) => {
+    if (S.start === i) html += `<div class="sel" style="${pctBox(r, sz)};border-radius:calc(8px * var(--s))"></div><div class="radio" style="${pctBox(s.single.radios[i], sz)}"></div>`;
+    html += `<div class="hot opt" data-single="${i}" style="${pctBox(r, sz)}"></div>`;
+  });
+  if (s.yesno) ['yes', 'no'].forEach(v => {
+    const r = s.yesno[v];
+    if (S[s.yesno.key] === v && s.yesno.baked !== v) html += `<div class="sel" style="${pctBox(r, sz)};border-radius:calc(4px * var(--s))"></div>`;
+    html += `<div class="hot opt" data-yn="${v}" style="${pctBox(r, sz)}"></div>`;
+  });
+  (s.texts || []).forEach(t => {
+    html += `<div class="txt ${t.cls}" style="${pctBox(t.rect, sz)};${t.color ? 'color:' + t.color : ''}">${esc(t.text)}</div>`;
+  });
+  if (s.cta) html += `<div class="hot cta" data-cta="1" style="${pctBox(s.cta, sz)}"></div>`;
+  if (s.back) html += `<div class="hot" data-go="${prevOf(n)}" style="${pctBox([0, 30, 70, 64], sz)}"></div>`;
+  if (s.story) html += `<div class="hot" data-video="1" style="${pctBox([0, 130, 390, 420], sz)}"></div>`;
+
+  app.innerHTML = `<div class="screen">${html}</div>`;
+  const screen = app.querySelector('.screen');
+  const setScale = () => screen.style.setProperty('--s', screen.clientWidth / 390);
+  setScale(); window.onresize = setScale;
+  if (!render.keepScroll) window.scrollTo(0, 0);
+  render.keepScroll = false;
+
+  const rerender = () => { save(); render.keepScroll = true; render(); };
+  screen.querySelectorAll('[data-multi]').forEach(el => el.onclick = (e) => {
+    e.stopPropagation(); const i = +el.dataset.multi;
+    S.motives = S.motives.includes(i) ? S.motives.filter(x => x !== i) : [...S.motives, i]; rerender();
+  });
+  screen.querySelectorAll('[data-single]').forEach(el => el.onclick = (e) => { e.stopPropagation(); S.start = +el.dataset.single; rerender(); });
+  screen.querySelectorAll('[data-yn]').forEach(el => el.onclick = (e) => { e.stopPropagation(); S[s.yesno.key] = el.dataset.yn; rerender(); });
+  screen.querySelectorAll('[data-go]').forEach(el => el.onclick = (e) => { e.stopPropagation(); go(el.dataset.go); });
+  const cta = screen.querySelector('[data-cta]');
+  if (cta) cta.onclick = (e) => {
+    e.stopPropagation();
+    if (s.need && !s.need()) { showToast(s.needMsg); screen.classList.add('hint'); setTimeout(() => screen.classList.remove('hint'), 2100); return; }
+    go(nextOf(n));
+  };
+  const v = screen.querySelector('[data-video]');
+  if (v) v.onclick = (e) => {
     e.stopPropagation(); clearTimeout(timer);
     showToast("In the real app, Tyler's 30-second video plays here. It moves on when the video ends.", 3600);
-    timer = setTimeout(() => go(next), 4200);
-  });
-  app.querySelector('.screen').addEventListener('click', () => {
+    timer = setTimeout(() => go(nextOf(n)), 4200);
+  };
+  screen.onclick = () => {
     if (!s.cta) return;
-    app.classList.add('hint'); setTimeout(() => app.classList.remove('hint'), 2100);
-    showToast('In this prototype, only the main button works.');
-  });
-  if (s.story) timer = setTimeout(() => go(next), 7000);
-  if (s.auto) timer = setTimeout(() => go(next), s.auto);
+    screen.classList.add('hint'); setTimeout(() => screen.classList.remove('hint'), 2100);
+    showToast(s.multi || s.single || s.yesno ? 'Tap an answer, then the main button.' : 'In this prototype, only the main button works.');
+  };
+  if (s.story) timer = setTimeout(() => go(nextOf(n)), 7000);
+  if (s.auto) timer = setTimeout(() => go(nextOf(n)), s.auto);
 }
-if (location.search.includes('debug')) document.head.insertAdjacentHTML('beforeend','<style>.hot{outline:2px dashed #00f!important;background:rgba(0,0,255,.12)}</style>');
+if (params.has('debug')) document.head.insertAdjacentHTML('beforeend', '<style>.hot{outline:2px dashed #00f!important;background:rgba(0,0,255,.12)}</style>');
 window.addEventListener('hashchange', render);
 render();
 </script>
